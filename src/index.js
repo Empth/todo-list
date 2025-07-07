@@ -30,6 +30,7 @@ function Card(title, desc, dueDate, priority, parentId, notes="", checklist=[], 
     return { getCard, getId, editCard, toggleComplete, printCard };
 }
 
+/*
 function Deck(name) {
     // named collection of Cards
     const deck = [];
@@ -63,6 +64,35 @@ function Deck(name) {
 
     return { addCard, removeCard, getCard, printDeck, getName, editName, getId };
 }
+*/
 
 // TODO make Deck into abstract Collection function, then compose specifics for Project (collection of Card) and
 // the whole TODO list (collection of Projects)
+
+
+function Deck() {
+    // Abstract Deck factory which describes a collection of some Items.
+    // These Items must support having uuid's for their identification/search (and must be named id).
+    const deck = [];
+
+    const addItem = (item) => {deck.push(item)};
+    const removeItem = (uuid) => {
+        for (let i = 0; i < deck.length; i++) {
+            const item = deck[i]
+        if (item.id === uuid) {
+            deck.splice(i, 1);
+            break;
+        }
+    }
+    };
+    const getItem = (uuid) => {
+        for (const item of deck) {
+            if (item.id === uuid) {
+                return item;
+            }
+        }
+        return null
+    }; // get item with uuid ow returns null
+
+    return { addItem, removeItem, getItem };
+}
