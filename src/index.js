@@ -93,6 +93,23 @@ function Deck() {
         }
         return null
     }; // get item with uuid ow returns null
+    const retrieveAllItems = () => [...deck];
 
-    return { addItem, removeItem, getItem };
+    return { addItem, removeItem, getItem, retrieveAllItems };
+}
+
+function Project(name) {
+    // Named Deck of Cards
+    let _name = name;
+    const id = crypto.randomUUID();
+    const base = Deck();
+    const getName = () => _name;
+    const editName = (newName) => { _name=newName };
+    const getId = () => id;
+    const addCard = base.addItem;
+    const removeCard = base.removeItem;
+    const getCard = base.getItem;
+    const retrieveAllCards = base.retrieveAllItems;
+
+    return { getName, editName, getId, addCard, removeCard, getCard, retrieveAllCards };
 }
