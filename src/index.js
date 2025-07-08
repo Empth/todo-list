@@ -33,39 +33,39 @@ function Card(title, desc, dueDate, priority, notes="", checklist=[]) {
 }
 
 
-function Deck() {
-    // Abstract Deck factory which describes a collection of some Items.
+function Collection() {
+    // Abstract Collection factory which describes a collection of some Items.
     // These Items must support having uuid's for their identification/search (and must be named id).
-    const deck = [];
+    const collection = [];
 
-    const addItem = (item) => {deck.push(item)};
+    const addItem = (item) => {collection.push(item)};
     const removeItem = (uuid) => {
-        for (let i = 0; i < deck.length; i++) {
-            const item = deck[i]
+        for (let i = 0; i < collection.length; i++) {
+            const item = collection[i]
         if (item.id === uuid) {
-            deck.splice(i, 1);
+            collection.splice(i, 1);
             break;
         }
     }
     };
     const getItem = (uuid) => {
-        for (const item of deck) {
+        for (const item of collection) {
             if (item.id === uuid) {
                 return item;
             }
         }
         return null
     }; // get item with uuid ow returns null
-    const retrieveAllItems = () => [...deck];
+    const retrieveAllItems = () => [...collection];
 
     return { addItem, removeItem, getItem, retrieveAllItems };
 }
 
 function Project(name) {
-    // Named Deck of Cards
+    // Named Collection of Cards
     let _name = name;
     const id = crypto.randomUUID();
-    const base = Deck();
+    const base = Collection();
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
     const getId = () => id;
@@ -77,13 +77,68 @@ function Project(name) {
     return { getName, editName, getId, addCard, removeCard, getCard, retrieveAllCards };
 }
 
+function Page() {
+    // Named Collection of Projects
+    const base = Collection();
+    const addProject = base.addItem;
+    const removeProject = base.removeItem;
+    const getProject = base.getItem;
+    const retrieveAllProjects = base.retrieveAllItems;
+
+    return { addProject, removeProject, getProject, retrieveAllProjects };
+}
+
+
+function createProject(name) {
+    // Adds new Project to global Page.
+}
+
+
+function DisplayController() {
+
+}
+
 
 let card1 = Card("I'm a card", "none", "6/13", "5");
 let card2 = Card("I'm also a card", "none", "2/13", "1");
 
 let testProject = Project("default");
+testProjectId = testProject.getId();
+
+card1.setParentId(testProjectId);
+card2.setParentId(testProjectId);
+
 testProject.addCard(card1);
 testProject.addCard(card2);
+
+let globalPage = Page();
+globalPage.addProject(testProject)
+
 let allCards = testProject.retrieveAllCards();
 allCards[0].printCard();
 allCards[1].printCard();
+
+function runner() {
+    // misc
+
+    document.getElementById("add-card").addEventListener("submit", e => {
+        e.preventDefault();
+        form = document.querySelector("#add-card");
+        let formData = new FormData(form);
+        let formObject = Object.fromEntries(formData); // {'title', 'desc', 'dueDate', "priority", 
+                                                    // (opt) "notes", (opt) "checklist",  "project" (object)}
+        let newCard = Card(...formObject.slice(0, 6)) // FIXME Will this work?????
+
+        addCardToProject(newCard, formObject.project);
+        displayProject();
+        e.target.reset();
+    });
+
+}
+
+function addCardToProject(card, project) {
+    // card and project are objects
+    project.addCard(card);
+    projectId = project.getId();
+    card.setParentId(projectId);
+}
