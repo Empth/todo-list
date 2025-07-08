@@ -27,12 +27,11 @@ function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]
     }
 
     const toggleComplete = () => {complete = !complete};
-    /*
-    const printCard = () => { console.log(`Title: ${_title}, Desc: ${_desc}, DueDate: ${_dueDate}, 
-                            Priority: ${_priority}, Notes: ${_notes}, Checklist: ${_checklist}`) };
-    */
+    const printCard = () => `Title: ${_title}, Desc: ${_desc}, DueDate: ${_dueDate}, 
+                            Priority: ${_priority}, Notes: ${_notes}, Checklist: ${_checklist}`;
+    // FIXME remove ^
 
-    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId };
+    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId, printCard };
 }
 
 
@@ -111,9 +110,10 @@ function runner() {
         e.preventDefault();
         form = document.querySelector("#add-card");
         let formData = new FormData(form);
-        let formObject = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
+        let fmObj = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
                                                     // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
-        let newCard = Card(...formObject.slice(0, 6)) // FIXME Will this work?????
+        let newCard = Card(fmObj.title, fmObj.desc, fmObj.due,
+            +fmObj.priority, fmObj.notes, fmObj.checklist);
 
         addCardToProject(newCard, testProject); // TODO refactor
         displayProject();
@@ -136,7 +136,7 @@ function displayProject() {
     for (const card of testProject.retrieveAllCards()) { // TODO refactor
         const cardInfo = card.getCard()
         const todoDiv = Object.assign(document.createElement("div"),
-                        {className: "todo", textContent: `${[...cardInfo]}`});
+                        {className: "todo", textContent: card.printCard()});
         container.appendChild(todoDiv);
     }
 }
@@ -148,3 +148,5 @@ function resetDisplay() {
         container.removeChild(container.firstChild);
     }
 }
+
+runner();
