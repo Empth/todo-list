@@ -125,7 +125,7 @@ function runner() {
         e.preventDefault();
         form = document.querySelector("#add-card");
         let formData = new FormData(form);
-        let formObject = Object.fromEntries(formData); // {'title', 'desc', 'dueDate', "priority", 
+        let formObject = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
                                                     // (opt) "notes", (opt) "checklist",  "project" (object)}
         let newCard = Card(...formObject.slice(0, 6)) // FIXME Will this work?????
 
@@ -141,4 +141,8 @@ function addCardToProject(card, project) {
     project.addCard(card);
     projectId = project.getId();
     card.setParentId(projectId);
+}
+
+function displayProject() {
+    // Display project on main tab
 }

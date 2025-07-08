@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="form-area">
+            <form action="" id="add-card">
+                <h2>Add a New Todo Item:</h2>
+                <div class="title">
+                    <label for="title-field">Title:</label>
+                    <input type="text" id="title-field" name="title" required>
+                </div>
+                <div class="desc">
+                    <label for="desc-field"></label>Description:</label>
+                    <textarea id="desc-field" name="desc" rows="4" cols="25"></textarea>
+                </div>
+                <div class="due">
+                    <label for="due-field">Due Date:</label>
+                    <input type="datetime-local" id="due-field" name="due" required>
+                </div>
+                <div class="priority">
+                    <label for="priority-field">Priority:</label>
+                    <input type="number" id="priority-field" name="priority" min="1" max="5" step="1" required>
+                </div>
+                <div class="notes">
+                    <label for="notes-field"></label>Extra Notes:</label>
+                    <textarea id="notes-field" name="notes" rows="4" cols="25"></textarea>
+                </div>
+                <div class="checklist">
+                    <label for="checklist-field"></label>Checklist:</label>
+                    <textarea id="checklist-field" name="checklist" rows="4" cols="25" placeholder="Delimit checklist with commas e.g. &quot;task A, task B, task C&quot;"></textarea>
+                </div>
+                <button type="submit">Add Todo</button>
+            </form>
+        </div>
+    </div>
+    <div class="container"></div>
+</body>
+</html>

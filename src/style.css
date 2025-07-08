@@ -1,0 +1,199 @@
+@font-face {
+    font-family: 'robotoitalic';
+    src: url('fonts/roboto-italic-variablefont_wdthwght-webfont.woff2') format('woff2'),
+         url('fonts/roboto-italic-variablefont_wdthwght-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'robotoregular';
+    src: url('fonts/roboto-variablefont_wdthwght-webfont.woff2') format('woff2'),
+         url('roboto-variablefont_wdthwght-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'norsebold';
+    src: url('fonts/norse-bold-webfont.woff2') format('woff2'),
+         url('fonts/norse-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family: 'robotoregular', serif;
+    --sidebar-size: 300px;
+    --header-size: 160px;
+    --header-search-size: 64px;
+    --sky-blue: #1A92D4;
+    --baby-gray: #E2E8F0;
+    --yellow-gold: #E3B030;
+    --card-border-radius: 9px;
+    --desc-grey: rgb(103, 103, 103);
+}
+
+h1, h2, h3, h4, h5, figure, p, ol, ul {
+  margin: 0;
+}
+
+ol[role="list"], ul[role="list"] {
+  list-style: none;
+  padding-inline: 0;
+}
+
+h1, h2, h3, h4, h5 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ul {
+    list-style-type: none;
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) 1fr;
+}
+
+.container {
+    width: 100%;
+    height: 80%;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 20px;
+}
+
+.card {
+    width: 160px;
+    height: 220px;
+    border: 3px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    display: grid;
+    grid-template-rows: 20px 1fr 40px 16px;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    gap: 5px;
+}
+
+p.title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+p.author {
+    font-size: 14px;
+    text-align: center;
+    width: 80%;
+}
+
+p.have-read {
+    font-size: 14px;
+    text-align: center;
+    width: 80%;
+}
+
+.sidebar {
+    border-right: 3px solid black;
+    display: grid;
+    align-items: start;
+    padding-top: 180px;
+}
+
+.form-area {
+    width: 100%;
+    height: 500px;
+}
+
+form {
+    height: 300px;
+    width: 100%;
+    padding: 20px;
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+}
+
+form > h2 {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.delete {
+    height: 20px;
+    width: 20px;
+    background-color: rgb(228, 33, 33);
+    border-radius: 10px;
+    border: 3px solid black;
+    align-self: center;
+    justify-self: center;
+}
+
+.delete:hover {
+    cursor: pointer;
+    background-color: rgb(145, 23, 23);
+}
+
+.delete:active {
+    cursor: pointer;
+    background-color: rgb(145, 23, 23);
+    height: 19px;
+    width: 19px;
+}
+
+.card-header {
+    display: grid;
+    grid-template-columns: 80px 20px;
+    height: 40px;
+    justify-self: end;
+    gap: 10px;
+    align-items: center;
+}
+
+.card-header > button.read {
+    background-color: white;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 0;
+    margin: 0;
+    height: 25px;
+    width: 80px;
+    border: 2px solid black;
+    border-radius: 8px;
+    align-self: center;
+    justify-self: center;
+}
+
+.card-header > button.read:hover {
+    cursor: pointer;
+    background-color: rgb(217, 217, 217);
+}
+
+.card-header > button.read:active {
+    cursor: pointer;
+    background-color: rgb(217, 217, 217);
+    height: 24px;
+    width: 79px;
+    font-size: 12.5px;
+}
