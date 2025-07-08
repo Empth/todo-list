@@ -1,3 +1,6 @@
+import "./style.css";
+import "./template.html";
+
 function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]) {
     let _title = inTitle; // str
     let _desc = inDesc; // str
@@ -10,7 +13,7 @@ function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]
     const id = crypto.randomUUID();
     let parentId = null; // uuid of parent
 
-    const getCard = () => { return {title: _title, desc: _desc, _dueDate: _dueDate, 
+    const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, 
                                     priority: _priority, notes: _notes, checklist: _checklist}; }; // TODO
     const getId = () => id;
     const getParentId = () => parentId;
@@ -27,11 +30,8 @@ function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]
     }
 
     const toggleComplete = () => {complete = !complete};
-    const printCard = () => `Title: ${_title}, Desc: ${_desc}, DueDate: ${_dueDate}, 
-                            Priority: ${_priority}, Notes: ${_notes}, Checklist: ${_checklist}`;
-    // FIXME remove ^
 
-    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId, printCard };
+    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId };
 }
 
 
@@ -108,7 +108,7 @@ function runner() {
 
     document.getElementById("add-card").addEventListener("submit", e => {
         e.preventDefault();
-        form = document.querySelector("#add-card");
+        let form = document.querySelector("#add-card");
         let formData = new FormData(form);
         let fmObj = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
                                                     // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
@@ -133,11 +133,8 @@ function displayProject() {
     // Display project on main tab
     resetDisplay();
     const container = document.querySelector(".container");
-    for (const card of testProject.retrieveAllCards()) { // TODO refactor
-        const cardInfo = card.getCard()
-        const todoDiv = Object.assign(document.createElement("div"),
-                        {className: "todo", textContent: card.printCard()});
-        container.appendChild(todoDiv);
+    for (const card of testProject.retrieveAllCards()) { // <-- TODO refactor
+        container.appendChild(createTodoDiv(card.getCard()));
     }
 }
 
@@ -147,6 +144,30 @@ function resetDisplay() {
     while (container.firstChild) {
         container.removeChild(container.firstChild);
     }
+}
+
+function createTodoDiv(card) {
+    const todoDiv = Object.assign(document.createElement("div"), {className: "card"});
+    const titleDiv = Object.assign(document.createElement("p"), {
+        className: "title", textContent: `${card.title}`
+    });
+    const descDiv = Object.assign(document.createElement("p"), {
+        className: "desc", textContent: `${card.desc}`
+    });
+    const dueDiv = Object.assign(document.createElement("p"), {
+        className: "due", textContent: `${card.due}`
+    });
+    const priorityDiv = Object.assign(document.createElement("p"), {
+        className: "priority", textContent: `${card.priority}`
+    });
+    const notesDiv = Object.assign(document.createElement("p"), {
+        className: "notes", textContent: `${card.notes}`
+    });
+    const checklistDiv = Object.assign(document.createElement("p"), {
+        className: "checklist", textContent: `${card.checklist}`
+    });
+    todoDiv.append(titleDiv, descDiv, dueDiv, priorityDiv, notesDiv, checklistDiv)
+    return todoDiv;
 }
 
 runner();
