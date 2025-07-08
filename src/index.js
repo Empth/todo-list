@@ -1,16 +1,17 @@
-function Card(title, desc, dueDate, priority, notes="", checklist=[]) {
-    let _title = title; // str
-    let _desc = desc; // str
-    let _dueDate = dueDate; // Date
-    let _priority = priority; // integer from 1-5 (1 is least important, 5 most
-    let _notes = notes; // str
-    let _checklist = checklist; // TODO implement me
+function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]) {
+    let _title = inTitle; // str
+    let _desc = inDesc; // str
+    let _dueDate = inDueDate; // Date
+    let _priority = inPriority; // integer from 1-5 (1 is least important, 5 most
+    let _notes = inNotes; // str
+    let _checklist = inChecklist; // TODO implement me
 
     let complete = false;
     const id = crypto.randomUUID();
     let parentId = null; // uuid of parent
 
-    const getCard = () => {}; // TODO
+    const getCard = () => { return {title: _title, desc: _desc, _dueDate: _dueDate, 
+                                    priority: _priority, notes: _notes, checklist: _checklist}; }; // TODO
     const getId = () => id;
     const getParentId = () => parentId;
     const setParentId = (newParentId) => { parentId = newParentId }; 
@@ -26,10 +27,12 @@ function Card(title, desc, dueDate, priority, notes="", checklist=[]) {
     }
 
     const toggleComplete = () => {complete = !complete};
+    /*
     const printCard = () => { console.log(`Title: ${_title}, Desc: ${_desc}, DueDate: ${_dueDate}, 
                             Priority: ${_priority}, Notes: ${_notes}, Checklist: ${_checklist}`) };
+    */
 
-    return { getCard, getId, editCard, toggleComplete, printCard, getParentId, setParentId };
+    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId };
 }
 
 
@@ -99,24 +102,7 @@ function DisplayController() {
 }
 
 
-let card1 = Card("I'm a card", "none", "6/13", "5");
-let card2 = Card("I'm also a card", "none", "2/13", "1");
-
-let testProject = Project("default");
-testProjectId = testProject.getId();
-
-card1.setParentId(testProjectId);
-card2.setParentId(testProjectId);
-
-testProject.addCard(card1);
-testProject.addCard(card2);
-
-let globalPage = Page();
-globalPage.addProject(testProject)
-
-let allCards = testProject.retrieveAllCards();
-allCards[0].printCard();
-allCards[1].printCard();
+let testProject = Project("default"); // TODO remove
 
 function runner() {
     // misc
@@ -126,10 +112,10 @@ function runner() {
         form = document.querySelector("#add-card");
         let formData = new FormData(form);
         let formObject = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
-                                                    // (opt) "notes", (opt) "checklist",  "project" (object)}
+                                                    // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
         let newCard = Card(...formObject.slice(0, 6)) // FIXME Will this work?????
 
-        addCardToProject(newCard, formObject.project);
+        addCardToProject(newCard, testProject); // TODO refactor
         displayProject();
         e.target.reset();
     });
@@ -139,10 +125,26 @@ function runner() {
 function addCardToProject(card, project) {
     // card and project are objects
     project.addCard(card);
-    projectId = project.getId();
+    const projectId = project.getId();
     card.setParentId(projectId);
 }
 
 function displayProject() {
     // Display project on main tab
+    resetDisplay();
+    const container = document.querySelector(".container");
+    for (const card of testProject.retrieveAllCards()) { // TODO refactor
+        const cardInfo = card.getCard()
+        const todoDiv = Object.assign(document.createElement("div"),
+                        {className: "todo", textContent: `${[...cardInfo]}`});
+        container.appendChild(todoDiv);
+    }
+}
+
+function resetDisplay() {
+    // reset cards in container DOM
+    const container = document.querySelector(".container");
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
 }
