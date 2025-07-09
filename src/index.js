@@ -103,7 +103,7 @@ function runner() {
     defaultProject.addCard(defaultCard);
     displayListOfProjects(mainPage, curProjectIdCallback);
     const defaultProjectButton = document.querySelector(".project-button");
-    defaultProjectButton.classList.add("on-project");
+    //defaultProjectButton.classList.add("on-project");
 
     document.getElementById("add-card").addEventListener("submit", e => {
         e.preventDefault();
@@ -126,7 +126,7 @@ function runner() {
         let fmObj = Object.fromEntries(formData); // name
         const newProject = Project(fmObj.name);
         mainPage.addProject(newProject);
-        displayListOfProjects(mainPage, curProjectId);
+        displayListOfProjects(mainPage, curProjectIdCallback);
         e.target.reset();
     });
 
@@ -143,7 +143,8 @@ function displayProject(project) {
     // Display project on main tab
     const container = document.querySelector(".container");
     resetDisplay(container);
-    for (const card of project.retrieveAllCards()) { // <-- TODO refactor
+    container.appendChild(Object.assign(document.createElement("p"), {textContent: `${project.getName()}`}));
+    for (const card of project.retrieveAllCards()) {
         container.appendChild(createTodoDiv(card.getCard()));
     }
 }
@@ -182,7 +183,7 @@ function createTodoDiv(card) {
     return todoDiv;
 }
 
-function displayListOfProjects(page, curProjectIdCallback=null) {
+function displayListOfProjects(page, curProjectIdCallback) {
     const projectListDiv = document.querySelector(".project-tab > .project-list");
     resetDisplay(projectListDiv);
     if (curProjectIdCallback.getCurId() !== null) {
@@ -196,8 +197,11 @@ function displayListOfProjects(page, curProjectIdCallback=null) {
         projectButton.addEventListener("click", e => {
             displayProject(project);
             const projectButtonArray = Array.prototype.slice.call(projectListDiv.children);
+            curProjectIdCallback.setCurId(project.getId()); // <--- maybe antipattern
+            /*
             projectButtonArray.forEach(projBtn => {projBtn.classList.remove("on-project")});
             projectButton.classList.add("on-project");
+            */
         })
         projectListDiv.appendChild(projectButton);
     }
