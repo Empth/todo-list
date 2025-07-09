@@ -100,11 +100,14 @@ function DisplayController() {
 
 }
 
-
-let testProject = Project("default"); // TODO remove
-
 function runner() {
-    // misc
+    // Runs remaining logic
+    const mainPage = Page();
+    const defaultProject = Project("default");
+    const defaultCard = Card("I'm a Todo!", "", "", 0);
+    mainPage.addProject(defaultProject);
+    defaultProject.addCard(defaultCard);
+    displayListOfProjects(mainPage);
 
     document.getElementById("add-card").addEventListener("submit", e => {
         e.preventDefault();
@@ -115,7 +118,7 @@ function runner() {
         let newCard = Card(fmObj.title, fmObj.desc, fmObj.due,
             +fmObj.priority, fmObj.notes, fmObj.checklist);
 
-        addCardToProject(newCard, testProject); // TODO refactor
+        addCardToProject(newCard, defaultProject); // TODO refactor
         displayProject();
         e.target.reset();
     });
@@ -129,11 +132,11 @@ function addCardToProject(card, project) {
     card.setParentId(projectId);
 }
 
-function displayProject() {
+function displayProject(project) {
     // Display project on main tab
     resetDisplay();
     const container = document.querySelector(".container");
-    for (const card of testProject.retrieveAllCards()) { // <-- TODO refactor
+    for (const card of project.retrieveAllCards()) { // <-- TODO refactor
         container.appendChild(createTodoDiv(card.getCard()));
     }
 }
@@ -166,10 +169,26 @@ function createTodoDiv(card) {
         const priorityDiv = Object.assign(document.createElement("p"), {
             className: "priority", textContent: `${priorityAndColor[0]}`
         });
-        todoDiv.style.backgroundImage = `linear-gradient(to bottom right, ${priorityAndColor[1]} 1%, white 90%)`;
+        todoDiv.style.backgroundImage = `linear-gradient(to bottom right, ${priorityAndColor[1]} 5%, white 90%)`;
+        todoDiv.append(priorityDiv)
     }
     todoDiv.append(titleDiv, dueDiv)
     return todoDiv;
+}
+
+function displayListOfProjects(page) {
+    const projectTabDiv = document.querySelector(".project-tab")
+    let i = 0;
+    for (const project of page.retrieveAllProjects()) {
+        if (i===0) displayProject(project);
+        const projectButton = Object.assign(document.createElement("button"), 
+        {className: "project", textContent: project.getName()});
+        projectButton.addEventListener("click", e => {
+            displayProject(project);
+        })
+        projectTabDiv.appendChild(projectButton);
+        i++;
+    }
 }
 
 runner();
