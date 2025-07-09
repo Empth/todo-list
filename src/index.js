@@ -37,14 +37,15 @@ function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]
 
 function Collection() {
     // Abstract Collection factory which describes a collection of some Items.
-    // These Items must support having uuid's for their identification/search (and must be named id).
+    // These Items must support having uuid's for their identification/search 
+    // (must be retrieved by getId getter).
     const collection = [];
 
     const addItem = (item) => {collection.push(item)};
     const removeItem = (uuid) => {
         for (let i = 0; i < collection.length; i++) {
             const item = collection[i]
-        if (item.id === uuid) {
+        if (item.getId() === uuid) {
             collection.splice(i, 1);
             break;
         }
@@ -52,7 +53,7 @@ function Collection() {
     };
     const getItem = (uuid) => {
         for (const item of collection) {
-            if (item.id === uuid) {
+            if (item.getId() === uuid) {
                 return item;
             }
         }
@@ -91,23 +92,18 @@ function Page() {
 }
 
 
-function createProject(name) {
-    // Adds new Project to global Page.
-}
-
-
-function DisplayController() {
-
-}
-
 function runner() {
     // Runs remaining logic
     const mainPage = Page();
     const defaultProject = Project("default");
     const defaultCard = Card("I'm a Todo!", "", "", 0);
+    const curProjectIdCallback = CurrentProjectId();
+    curProjectIdCallback.setCurId(defaultProject.getId());
     mainPage.addProject(defaultProject);
     defaultProject.addCard(defaultCard);
-    displayListOfProjects(mainPage);
+    displayListOfProjects(mainPage, curProjectIdCallback);
+    const defaultProjectButton = document.querySelector(".project-button");
+    defaultProjectButton.classList.add("on-project");
 
     document.getElementById("add-card").addEventListener("submit", e => {
         e.preventDefault();
@@ -130,7 +126,7 @@ function runner() {
         let fmObj = Object.fromEntries(formData); // name
         const newProject = Project(fmObj.name);
         mainPage.addProject(newProject);
-        displayListOfProjects(mainPage);
+        displayListOfProjects(mainPage, curProjectId);
         e.target.reset();
     });
 
@@ -186,20 +182,32 @@ function createTodoDiv(card) {
     return todoDiv;
 }
 
-function displayListOfProjects(page) {
-    const projectListDiv = document.querySelector(".project-tab > .project-list")
+function displayListOfProjects(page, curProjectIdCallback=null) {
+    const projectListDiv = document.querySelector(".project-tab > .project-list");
     resetDisplay(projectListDiv);
-    let i = 0;
+    if (curProjectIdCallback.getCurId() !== null) {
+        const curId = curProjectIdCallback.getCurId();
+        const curProject = page.getProject(curId);
+        displayProject(curProject);
+    }
     for (const project of page.retrieveAllProjects()) {
-        if (i===0) displayProject(project);
         const projectButton = Object.assign(document.createElement("button"), 
         {className: "project-button", textContent: project.getName()});
         projectButton.addEventListener("click", e => {
             displayProject(project);
+            const projectButtonArray = Array.prototype.slice.call(projectListDiv.children);
+            projectButtonArray.forEach(projBtn => {projBtn.classList.remove("on-project")});
+            projectButton.classList.add("on-project");
         })
         projectListDiv.appendChild(projectButton);
-        i++;
     }
+}
+
+function CurrentProjectId() {
+    let curId = null;
+    const getCurId = () => curId;
+    const setCurId = (newId) => { curId = newId };
+    return { getCurId, setCurId };
 }
 
 runner();
