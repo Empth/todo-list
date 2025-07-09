@@ -97,10 +97,16 @@ body {
     gap: 5px;
 }
 
-p.title, p.desc, p.due, p.priority, p.notes, p.checklist {
+p.title, p.due {
     font-size: 20px;
     font-weight: bold;
     text-align: center;
+}
+
+p.priority {
+    font-size: 14px;
+    text-align: left;
+    font-style: italic;
 }
 
 .sidebar {

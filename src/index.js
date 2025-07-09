@@ -147,26 +147,28 @@ function resetDisplay() {
 }
 
 function createTodoDiv(card) {
+    const priorityMap = {
+        0: ["No Priority", "#000000"],
+        1: ["Low Priority", "#32CD32"], 
+        2: ["Slight Priority", "#9ACD32"], 
+        3: ["Moderate Priority", "#fffdaf"], 
+        4: ["Heavy Priority", "#FFAA33"], 
+        5: ["Highest Priority", "#FF5733"]};
     const todoDiv = Object.assign(document.createElement("div"), {className: "card"});
     const titleDiv = Object.assign(document.createElement("p"), {
         className: "title", textContent: `${card.title}`
     });
-    const descDiv = Object.assign(document.createElement("p"), {
-        className: "desc", textContent: `${card.desc}`
-    });
     const dueDiv = Object.assign(document.createElement("p"), {
-        className: "due", textContent: `${card.due}`
+        className: "due", textContent: card.due === "" ? "" : `Due: ${card.due}`
     });
-    const priorityDiv = Object.assign(document.createElement("p"), {
-        className: "priority", textContent: `${card.priority}`
-    });
-    const notesDiv = Object.assign(document.createElement("p"), {
-        className: "notes", textContent: `${card.notes}`
-    });
-    const checklistDiv = Object.assign(document.createElement("p"), {
-        className: "checklist", textContent: `${card.checklist}`
-    });
-    todoDiv.append(titleDiv, descDiv, dueDiv, priorityDiv, notesDiv, checklistDiv)
+    const priorityAndColor = priorityMap[card.priority];
+    if (card.priority != 0) {
+        const priorityDiv = Object.assign(document.createElement("p"), {
+            className: "priority", textContent: `${priorityAndColor[0]}`
+        });
+        todoDiv.style.backgroundImage = `linear-gradient(to bottom right, ${priorityAndColor[1]} 1%, white 90%)`;
+    }
+    todoDiv.append(titleDiv, dueDiv)
     return todoDiv;
 }
 
