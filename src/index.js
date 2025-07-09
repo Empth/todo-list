@@ -102,8 +102,7 @@ function runner() {
     mainPage.addProject(defaultProject);
     defaultProject.addCard(defaultCard);
     displayListOfProjects(mainPage, curProjectIdCallback);
-    const defaultProjectButton = document.querySelector(".project-button");
-    //defaultProjectButton.classList.add("on-project");
+    updateProjectDropdown(mainPage);
 
     document.getElementById("add-card").addEventListener("submit", e => {
         e.preventDefault();
@@ -113,9 +112,9 @@ function runner() {
                                                     // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
         let newCard = Card(fmObj.title, fmObj.desc, fmObj.due,
             +fmObj.priority, fmObj.notes, fmObj.checklist);
-
-        addCardToProject(newCard, defaultProject); // TODO refactor
-        displayProject();
+        const parentProject = mainPage.getProject(fmObj.project);
+        addCardToProject(newCard, parentProject); // TODO refactor
+        displayProject(parentProject);
         e.target.reset();
     });
 
@@ -127,6 +126,7 @@ function runner() {
         const newProject = Project(fmObj.name);
         mainPage.addProject(newProject);
         displayListOfProjects(mainPage, curProjectIdCallback);
+        updateProjectDropdown(mainPage);
         e.target.reset();
     });
 
@@ -198,10 +198,6 @@ function displayListOfProjects(page, curProjectIdCallback) {
             displayProject(project);
             const projectButtonArray = Array.prototype.slice.call(projectListDiv.children);
             curProjectIdCallback.setCurId(project.getId()); // <--- maybe antipattern
-            /*
-            projectButtonArray.forEach(projBtn => {projBtn.classList.remove("on-project")});
-            projectButton.classList.add("on-project");
-            */
         })
         projectListDiv.appendChild(projectButton);
     }
@@ -212,6 +208,17 @@ function CurrentProjectId() {
     const getCurId = () => curId;
     const setCurId = (newId) => { curId = newId };
     return { getCurId, setCurId };
+}
+
+function updateProjectDropdown(page) {
+    const projectDropdownSelect = document.querySelector("#project-field");
+    resetDisplay(projectDropdownSelect);
+    for (const project of page.retrieveAllProjects()) {
+        const option = Object.assign(document.createElement("option"), {
+            value: `${project.getId()}`, textContent: `${project.getName()}`
+        });
+        projectDropdownSelect.appendChild(option);
+    }
 }
 
 runner();
