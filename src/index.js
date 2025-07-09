@@ -1,32 +1,27 @@
 import "./style.css";
 import "./template.html";
 
-function Card(inTitle, inDesc, inDueDate, inPriority, inNotes="", inChecklist=[]) {
+function Card(inTitle, inDesc, inDueDate, inPriority) {
     let _title = inTitle; // str
     let _desc = inDesc; // str
     let _dueDate = inDueDate; // Date
     let _priority = inPriority; // integer from 1-5 (1 is least important, 5 most
-    let _notes = inNotes; // str
-    let _checklist = inChecklist; // TODO implement me
 
     let complete = false;
     const id = crypto.randomUUID();
     let parentId = null; // uuid of parent
 
-    const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, 
-                                    priority: _priority, notes: _notes, checklist: _checklist}; }; // TODO
+    const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
     const getId = () => id;
     const getParentId = () => parentId;
     const setParentId = (newParentId) => { parentId = newParentId }; 
     
-    function editCard(newTitle=_title, newDesc=_desc, newDueDate=_dueDate,
-     newPriority=_priority, newNotes=_notes, newChecklist=_checklist) {
+    function editCard(newTitle=_title, newDesc=_desc, 
+        newDueDate=_dueDate, newPriority=_priority) {
         _title=newTitle;
         _desc=newDesc;
         _dueDate=newDueDate;
         _priority=newPriority;
-        _notes=newNotes;
-        _checklist=newChecklist;
     }
 
     const toggleComplete = () => {complete = !complete};
@@ -91,6 +86,13 @@ function Page() {
     return { addProject, removeProject, getProject, retrieveAllProjects };
 }
 
+function addCardToProject(card, project) {
+    // card and project are objects
+    project.addCard(card);
+    const projectId = project.getId();
+    card.setParentId(projectId);
+}
+
 
 function runner() {
     // Runs remaining logic
@@ -110,8 +112,7 @@ function runner() {
         let formData = new FormData(form);
         let fmObj = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
                                                     // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
-        let newCard = Card(fmObj.title, fmObj.desc, fmObj.due,
-            +fmObj.priority, fmObj.notes, fmObj.checklist);
+        let newCard = Card(fmObj.title, fmObj.desc, fmObj.due, +fmObj.priority);
         const parentProject = mainPage.getProject(fmObj.project);
         addCardToProject(newCard, parentProject); // TODO refactor
         displayProject(parentProject);
@@ -132,20 +133,13 @@ function runner() {
 
 }
 
-function addCardToProject(card, project) {
-    // card and project are objects
-    project.addCard(card);
-    const projectId = project.getId();
-    card.setParentId(projectId);
-}
-
 function displayProject(project) {
     // Display project on main tab
     const container = document.querySelector(".container");
     resetDisplay(container);
     container.appendChild(Object.assign(document.createElement("p"), {textContent: `${project.getName()}`}));
     for (const card of project.retrieveAllCards()) {
-        container.appendChild(createTodoDiv(card.getCard()));
+        container.appendChild(createTodoDiv(card, project));
     }
 }
 
@@ -156,7 +150,9 @@ function resetDisplay(domElt) {
     }
 }
 
-function createTodoDiv(card) {
+function createTodoDiv(cardFactory, parentProject) {
+    // card as factory
+    const card = cardFactory.getCard();
     const priorityMap = {
         0: ["No Priority", "#000000"],
         1: ["Low Priority", "#32CD32"], 
@@ -165,11 +161,16 @@ function createTodoDiv(card) {
         4: ["Heavy Priority", "#FFAA33"], 
         5: ["Highest Priority", "#FF5733"]};
     const todoDiv = Object.assign(document.createElement("div"), {className: "card"});
+    todoDiv.setAttribute("data-carduuid", cardFactory.getId());
+
     const titleDiv = Object.assign(document.createElement("p"), {
         className: "title", textContent: `${card.title}`
     });
     const dueDiv = Object.assign(document.createElement("p"), {
         className: "due", textContent: card.due === "" ? "" : `Due: ${card.due}`
+    });
+    const descDiv = Object.assign(document.createElement("p"), {
+        className: "card-desc", textContent: card.desc === "" ? "" : `${card.desc}`
     });
     const priorityAndColor = priorityMap[card.priority];
     if (card.priority != 0) {
@@ -179,7 +180,15 @@ function createTodoDiv(card) {
         todoDiv.style.backgroundImage = `linear-gradient(to bottom right, ${priorityAndColor[1]} 5%, white 90%)`;
         todoDiv.append(priorityDiv)
     }
-    todoDiv.append(titleDiv, dueDiv)
+    const deleteButton = Object.assign(document.createElement("button"), { className: "delete-card", textContent: "X"});
+    deleteButton.addEventListener("click", e => {
+        let parentCard = deleteButton.parentElement;
+        let uuid = parentCard.dataset.carduuid;
+        parentProject.removeCard(uuid);
+        displayProject(parentProject);
+    });
+
+    todoDiv.append(deleteButton, titleDiv, descDiv, dueDiv)
     return todoDiv;
 }
 
