@@ -7,7 +7,16 @@
 </head>
 <body>
     <div class="project-tab">
-        <button class="add-project">Add Project</button>
+        <div class="project-form-area">
+            <form action="" id="add-project">
+                <div class="project-name">
+                    <label for="name-field">Title:</label>
+                    <input type="text" id="name-field" name="name" required>
+                </div>
+                <button type="submit" class="add-project-button">Add Project</button>
+            </form>
+        </div>
+        <div class="project-list"></div>
     </div>
     <div class="sidebar">
         <div class="form-area">

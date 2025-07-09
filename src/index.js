@@ -123,6 +123,17 @@ function runner() {
         e.target.reset();
     });
 
+    document.getElementById("add-project").addEventListener("submit", e => {
+        e.preventDefault();
+        let form = document.querySelector("#add-project");
+        let formData = new FormData(form);
+        let fmObj = Object.fromEntries(formData); // name
+        const newProject = Project(fmObj.name);
+        mainPage.addProject(newProject);
+        displayListOfProjects(mainPage);
+        e.target.reset();
+    });
+
 }
 
 function addCardToProject(card, project) {
@@ -134,18 +145,17 @@ function addCardToProject(card, project) {
 
 function displayProject(project) {
     // Display project on main tab
-    resetDisplay();
     const container = document.querySelector(".container");
+    resetDisplay(container);
     for (const card of project.retrieveAllCards()) { // <-- TODO refactor
         container.appendChild(createTodoDiv(card.getCard()));
     }
 }
 
-function resetDisplay() {
-    // reset cards in container DOM
-    const container = document.querySelector(".container");
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
+function resetDisplay(domElt) {
+    // reset display of domElt
+    while (domElt.firstChild) {
+        domElt.removeChild(domElt.firstChild);
     }
 }
 
@@ -177,16 +187,17 @@ function createTodoDiv(card) {
 }
 
 function displayListOfProjects(page) {
-    const projectTabDiv = document.querySelector(".project-tab")
+    const projectListDiv = document.querySelector(".project-tab > .project-list")
+    resetDisplay(projectListDiv);
     let i = 0;
     for (const project of page.retrieveAllProjects()) {
         if (i===0) displayProject(project);
         const projectButton = Object.assign(document.createElement("button"), 
-        {className: "project", textContent: project.getName()});
+        {className: "project-button", textContent: project.getName()});
         projectButton.addEventListener("click", e => {
             displayProject(project);
         })
-        projectTabDiv.appendChild(projectButton);
+        projectListDiv.appendChild(projectButton);
         i++;
     }
 }

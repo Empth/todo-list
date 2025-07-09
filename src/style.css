@@ -125,7 +125,14 @@ p.priority {
     gap: 10px;
 }
 
-.project {
+.project-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.project-button {
     border: 3px solid black;
     border-radius: 5px;
     background-color: white;
@@ -136,7 +143,7 @@ p.priority {
     font-weight: bold;
 }
 
-.project:hover {
+.project-button:hover {
     background-color: rgb(197, 197, 197);
     cursor: pointer;
 }
