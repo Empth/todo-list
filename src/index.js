@@ -201,6 +201,8 @@ function displayListOfProjects(page, curProjectIdCallback) {
         displayProject(curProject);
     }
     for (const project of page.retrieveAllProjects()) {
+        const projectDividerDiv = Object.assign(document.createElement("div"), {className: "project-divider"});
+        projectDividerDiv.setAttribute("data-uuid", project.getId());
         const projectButton = Object.assign(document.createElement("button"), 
         {className: "project-button", textContent: project.getName()});
         projectButton.addEventListener("click", e => {
@@ -208,7 +210,22 @@ function displayListOfProjects(page, curProjectIdCallback) {
             const projectButtonArray = Array.prototype.slice.call(projectListDiv.children);
             curProjectIdCallback.setCurId(project.getId()); // <--- maybe antipattern
         })
-        projectListDiv.appendChild(projectButton);
+        const deleteButton = Object.assign(document.createElement("button"), {className: "delete-project", textContent: "X"});
+        deleteButton.addEventListener("click", e => {
+            if (numProjects(page) > 1) {
+                let thisProjectDividerDiv = deleteButton.parentElement;
+                let uuid = thisProjectDividerDiv.dataset.uuid;
+                if (uuid === curProjectIdCallback.getCurId()) {
+                    const nextProjectFallback = getNextProjectBesidesCurrent(page, uuid);
+                    curProjectIdCallback.setCurId(nextProjectFallback === null ? null : nextProjectFallback.getId());
+                }
+                page.removeProject(uuid);
+                updateProjectDropdown(page);
+                displayListOfProjects(page, curProjectIdCallback);
+            }
+        });
+        projectDividerDiv.append(deleteButton, projectButton);
+        projectListDiv.appendChild(projectDividerDiv);
     }
 }
 
@@ -228,6 +245,21 @@ function updateProjectDropdown(page) {
         });
         projectDropdownSelect.appendChild(option);
     }
+}
+
+function numProjects(page) {
+    return page.retrieveAllProjects().length;
+}
+
+function getNextProjectBesidesCurrent(page, curUuid) {
+    // Gets a different project from page besides the current one with id curUuid
+    // if none exist return null
+    for (const project of page.retrieveAllProjects()) {
+        if (project.getId() !== curUuid) {
+            return project;
+        }
+    }
+    return null;
 }
 
 runner();
