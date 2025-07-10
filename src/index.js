@@ -59,6 +59,25 @@ function Collection() {
     return { addItem, removeItem, getItem, retrieveAllItems };
 }
 
+function Storage() {
+    // localStorage for global page Collection.
+    // We represent storage = {project1id: "{card1id: {card1data}, card2id: {card2data} ...}", project2id: "{}",...}
+    let storage;
+    const storageCollection = Collection();
+    // vvv repopulates storageCollection
+    const repopulate = () => {};
+    const addNewProject = (projectUuid) => {storage.setItem(projectUuid, JSON.stringify({}))};
+    const removeProject = (projectUuid) => {storage.removeItem(projectUuid)};
+    const getPageCollection = () => storageCollection;
+    const addCardToProject = (card, projectUuid) => {};
+    const removeCardfromProject = (cardUuid, projectUuid) => {};
+    const getProjectCollection = (projectUuid) => {
+        const cardsCollection = storage.getItem(projectUuuid);
+        return 1; // TODO
+    };
+    return {};
+}
+
 function Project(name) {
     // Named Collection of Cards
     let _name = name;
