@@ -97,20 +97,29 @@ function Page() {
 
 function Storage() {
     // localStorage for global page Collection.
-    // We represent storage = {project1id: "{name: project1name, card1id: {card1data}, card2id: {card2data} ...}", project2id: "{}",...}
+    // We represent storage = {project1id: "{name: project1name, card1id: {card1rawdata}, 
+    // card2id: {card2rawdata} ...}", project2id: "{}",...}
+    // and cardXrawdata = {title:, desc:, due:, priority: }
     let storage;
-    const storageCollection = Collection();
-    // vvv repopulates storageCollection
+    const pageStorage = Page();
+    // vvv repopulates pageStorage
     const repopulate = () => {
         for (let i = 0; i < storage.length; i++) {
             const projectId = storage.key(i);
             const projectJson = JSON.parse(storage.getItem(projectId));
-            const project = Project()
+            const project = IdentifiableProject(projectJson.name, projectId);
+            delete projectJson.name;
+            Object.keys(projectJson).forEach(cardId => {
+                const rawCard = projectJson[cardId];
+                const card = IdentifiableCard(rawCard.title, rawCard.desc, rawCard.due,
+                                              rawCard.priority, cardId);
+                project.addCard(card);
+            });
+            pageStorage.addProject(project)
         }
     };
     const addNewProject = (projectId, projectName) => {storage.setItem(projectId, JSON.stringify({"name": projectName}))};
     const removeProject = (projectId) => {storage.removeItem(projectId)};
-    const getPageCollection = () => storageCollection;
     const addCardToProject = (cardId, cardRawObj, projectId) => {
         const projectCardListJson = JSON.parse(storage.getItem(projectId));
         projectCardListJson[cardId] = cardRawObj;
@@ -121,15 +130,34 @@ function Storage() {
         delete projectCardListJson[cardId];
         storage.setItem(projectId, JSON.stringify(projectCardListJson));
     };
-    const getProjectCollection = (projectId) => {
-        const cardsCollection = JSON.parse(storage.getItem(projectUuid));
-        return 1; // TODO
-    };
+    const getPageCollection = () => pageStorage;
 
     repopulate();
 
     return { addNewProject, removeProject, getPageCollection, 
-            addCardToProject, removeCardfromProject, getProjectCollection };
+            addCardToProject, removeCardfromProject };
+}
+
+function CurrentProjectId() {
+    let curId = null;
+    const getCurId = () => curId;
+    const setCurId = (newId) => { curId = newId };
+    return { getCurId, setCurId };
+}
+
+function numProjects(page) {
+    return page.retrieveAllProjects().length;
+}
+
+function getNextProjectBesidesCurrent(page, curUuid) {
+    // Gets a different project from page besides the current one with id curUuid
+    // if none exist return null
+    for (const project of page.retrieveAllProjects()) {
+        if (project.getId() !== curUuid) {
+            return project;
+        }
+    }
+    return null;
 }
 
 // -------------------------- DOM functions ----------------------------------
@@ -137,10 +165,10 @@ function Storage() {
 function runner() {
     // Runs remaining logic
     const mainPage = Page();
-    const defaultProject = Project("default");
+    const defaultProject = Project("default"); // TODO redirect elsewhere if storage is populated
     const defaultCard = Card("I'm a Todo!", "", "", 0);
     const curProjectIdCallback = CurrentProjectId();
-    curProjectIdCallback.setCurId(defaultProject.getId());
+    curProjectIdCallback.setCurId(defaultProject.getId()); // TODO this might be annoying on occupied storage branch
     mainPage.addProject(defaultProject);
     defaultProject.addCard(defaultCard);
     displayListOfProjects(mainPage, curProjectIdCallback);
@@ -269,13 +297,6 @@ function displayListOfProjects(page, curProjectIdCallback) {
     }
 }
 
-function CurrentProjectId() {
-    let curId = null;
-    const getCurId = () => curId;
-    const setCurId = (newId) => { curId = newId };
-    return { getCurId, setCurId };
-}
-
 function updateProjectDropdown(page) {
     const projectDropdownSelect = document.querySelector("#project-field");
     resetDisplay(projectDropdownSelect);
@@ -287,19 +308,5 @@ function updateProjectDropdown(page) {
     }
 }
 
-function numProjects(page) {
-    return page.retrieveAllProjects().length;
-}
-
-function getNextProjectBesidesCurrent(page, curUuid) {
-    // Gets a different project from page besides the current one with id curUuid
-    // if none exist return null
-    for (const project of page.retrieveAllProjects()) {
-        if (project.getId() !== curUuid) {
-            return project;
-        }
-    }
-    return null;
-}
 
 runner();
