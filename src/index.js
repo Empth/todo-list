@@ -12,6 +12,7 @@ function Card(inTitle, inDesc, inDueDate, inPriority) {
 
     const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
     const getId = () => id;
+    const setId = (newId) => {id=newId};
     
     function editCard(newTitle=_title, newDesc=_desc, 
         newDueDate=_dueDate, newPriority=_priority) {
@@ -23,17 +24,8 @@ function Card(inTitle, inDesc, inDueDate, inPriority) {
 
     const toggleComplete = () => {complete = !complete};
 
-    return { getCard, getId, editCard, toggleComplete };
+    return { getCard, getId, setId, editCard, toggleComplete };
 }
-
-function IdentifiableCard(inTitle, inDesc, inDueDate, inPriority, inId) {
-    // A card with a prexisting id given in inId
-    const trueId = inId;
-    const base = Card(inTitle, inDesc, inDueDate, inPriority);
-    const getId = () => trueId;
-    return { ...base, getId };
-}
-
 
 function Collection() {
     // Abstract Collection factory which describes a collection of some Items.
@@ -68,22 +60,24 @@ function Project(name) {
     // Named Collection of Cards
     let _name = name;
     const id = crypto.randomUUID();
+    const storageRunner = Storage();
     const base = Collection();
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
     const getId = () => id;
+    const setId = (newId) => { id = newId };
+    const addCard = (card) => {
+        storageRunner.addCardToProject(card.getId(), card.getCard(), );
+        base.addItem(card);
+    };
+    const removeCard = (id) => {
+        storageRunner.removeCardfromProject();
+        base.removeItem(id);
+    };
+    const getCard = base.getItem;
+    const retrieveAllCards = base.retrieveAllItems;
 
-    return { getName, editName, getId, addCard: base.addItem, 
-        removeCard: base.removeItem, getCard: base.getItem, 
-        retrieveAllCards: base.retrieveAllItems };
-}
-
-function IdentifiableProject(inName, inId) {
-    // A Project with a prexisting id given in inId
-    const trueId = inId;
-    const base = Project(inName);
-    const getId = () => trueId;
-    return { ...base, getId };
+    return { getName, editName, getId, setId, addCard, removeCard, getCard, retrieveAllCards };
 }
 
 function Page() {
@@ -101,23 +95,6 @@ function Storage() {
     // card2id: {card2rawdata} ...}", project2id: "{}",...}
     // and cardXrawdata = {title:, desc:, due:, priority: }
     let storage;
-    const pageStorage = Page();
-    // vvv repopulates pageStorage
-    const repopulate = () => {
-        for (let i = 0; i < storage.length; i++) {
-            const projectId = storage.key(i);
-            const projectJson = JSON.parse(storage.getItem(projectId));
-            const project = IdentifiableProject(projectJson.name, projectId);
-            delete projectJson.name;
-            Object.keys(projectJson).forEach(cardId => {
-                const rawCard = projectJson[cardId];
-                const card = IdentifiableCard(rawCard.title, rawCard.desc, rawCard.due,
-                                              rawCard.priority, cardId);
-                project.addCard(card);
-            });
-            pageStorage.addProject(project)
-        }
-    };
     const addNewProject = (projectId, projectName) => {storage.setItem(projectId, JSON.stringify({"name": projectName}))};
     const removeProject = (projectId) => {storage.removeItem(projectId)};
     const addCardToProject = (cardId, cardRawObj, projectId) => {
@@ -130,12 +107,31 @@ function Storage() {
         delete projectCardListJson[cardId];
         storage.setItem(projectId, JSON.stringify(projectCardListJson));
     };
-    const getPageCollection = () => pageStorage;
 
-    repopulate();
+    return { addNewProject, removeProject, addCardToProject, removeCardfromProject };
+}
 
-    return { addNewProject, removeProject, getPageCollection, 
-            addCardToProject, removeCardfromProject };
+function repopulateAndReturnPage() {
+    // repopulates a page from localStorage and returns the page.
+    let storage;
+    const page = Page();
+    // vvv repopulates page
+    for (let i = 0; i < storage.length; i++) {
+        const projectId = storage.key(i);
+        const projectJson = JSON.parse(storage.getItem(projectId));
+        const project = Project(projectJson.name);
+        project.setId(projectId);
+        delete projectJson.name;
+        Object.keys(projectJson).forEach(cardId => {
+            const rawCard = projectJson[cardId];
+            const card = Card(rawCard.title, rawCard.desc, 
+                                rawCard.due, rawCard.priority);
+            card.setId(cardId);
+            project.addCard(card);
+        });
+        page.addProject(project)
+    }
+    return page;
 }
 
 function CurrentProjectId() {
