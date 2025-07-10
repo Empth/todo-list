@@ -1,18 +1,19 @@
 import "./style.css";
 import "./template.html";
 
-function Card(inTitle, inDesc, inDueDate, inPriority) {
+function Card(inTitle, inDesc, inDueDate, inPriority, initId=null) {
+    // initId: given inital id to set card's identifier as.
+
     let _title = inTitle; // str
     let _desc = inDesc; // str
     let _dueDate = inDueDate; // Date
     let _priority = inPriority; // integer from 1-5 (1 is least important, 5 most
 
     let complete = false;
-    const id = crypto.randomUUID();
+    const id = (initId === null) ? crypto.randomUUID() : initId;
 
     const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
     const getId = () => id;
-    const setId = (newId) => {id=newId};
     
     function editCard(newTitle=_title, newDesc=_desc, 
         newDueDate=_dueDate, newPriority=_priority) {
@@ -22,9 +23,9 @@ function Card(inTitle, inDesc, inDueDate, inPriority) {
         _priority=newPriority;
     }
 
-    const toggleComplete = () => {complete = !complete};
+    const toggleComplete = () => { complete = !complete };
 
-    return { getCard, getId, setId, editCard, toggleComplete };
+    return { getCard, getId, editCard, toggleComplete };
 }
 
 function Collection() {
@@ -56,36 +57,44 @@ function Collection() {
     return { addItem, removeItem, getItem, retrieveAllItems };
 }
 
-function Project(name) {
+function Project(name, initId=null) {
     // Named Collection of Cards
+    // initId: given inital id to set project's identifier as.
     let _name = name;
-    const id = crypto.randomUUID();
+    const id = (initId === null) ? crypto.randomUUID() : initId;
     const storageRunner = Storage();
     const base = Collection();
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
     const getId = () => id;
-    const setId = (newId) => { id = newId };
     const addCard = (card) => {
-        storageRunner.addCardToProject(card.getId(), card.getCard(), );
+        storageRunner.addCardToProject(card.getId(), card.getCard(), id);
         base.addItem(card);
     };
-    const removeCard = (id) => {
-        storageRunner.removeCardfromProject();
+    const removeCard = (cardId) => {
+        storageRunner.removeCardfromProject(cardId, id);
         base.removeItem(id);
     };
-    const getCard = base.getItem;
-    const retrieveAllCards = base.retrieveAllItems;
 
-    return { getName, editName, getId, setId, addCard, removeCard, getCard, retrieveAllCards };
+    return { getName, editName, getId, addCard, removeCard, getCard: base.getItem, 
+                retrieveAllCards: base.retrieveAllItems };
 }
 
 function Page() {
     // Named Collection of Projects
     const base = Collection();
+    const storageRunner = Storage();
+    const addProject = (project) => {
+        storageRunner.addNewProject(project.getId(), project.getName())
+        base.addItem(project);
+    };
+    const removeProject = (projectId) => {
+        storageRunner.removeProject(projectId);
+        base.removeItem(projectId);
+    };
 
-    return { addProject: base.addItem, removeProject: base.removeItem, 
-        getProject: base.getItem, retrieveAllProjects: base.retrieveAllItems };
+    return { addProject, removeProject, getProject: base.getItem, 
+                retrieveAllProjects: base.retrieveAllItems };
 }
 
 
@@ -119,14 +128,12 @@ function repopulateAndReturnPage() {
     for (let i = 0; i < storage.length; i++) {
         const projectId = storage.key(i);
         const projectJson = JSON.parse(storage.getItem(projectId));
-        const project = Project(projectJson.name);
-        project.setId(projectId);
+        const project = Project(projectJson.name, projectId);
         delete projectJson.name;
         Object.keys(projectJson).forEach(cardId => {
             const rawCard = projectJson[cardId];
             const card = Card(rawCard.title, rawCard.desc, 
-                                rawCard.due, rawCard.priority);
-            card.setId(cardId);
+                                rawCard.due, rawCard.priority, cardId);
             project.addCard(card);
         });
         page.addProject(project)
