@@ -103,7 +103,7 @@ function Storage() {
     // We represent storage = {project1id: "{name: project1name, card1id: {card1rawdata}, 
     // card2id: {card2rawdata} ...}", project2id: "{}",...}
     // and cardXrawdata = {title:, desc:, due:, priority: }
-    let storage;
+    const storage = localStorage;
     const addNewProject = (projectId, projectName) => {storage.setItem(projectId, JSON.stringify({"name": projectName}))};
     const removeProject = (projectId) => {storage.removeItem(projectId)};
     const addCardToProject = (cardId, cardRawObj, projectId) => {
@@ -122,7 +122,7 @@ function Storage() {
 
 function repopulateAndReturnPage() {
     // repopulates a page from localStorage and returns the page.
-    let storage;
+    const storage = localStorage;
     const page = Page();
     // vvv repopulates page
     for (let i = 0; i < storage.length; i++) {
@@ -167,13 +167,16 @@ function getNextProjectBesidesCurrent(page, curUuid) {
 
 function runner() {
     // Runs remaining logic
-    const mainPage = Page();
-    const defaultProject = Project("default"); // TODO redirect elsewhere if storage is populated
-    const defaultCard = Card("I'm a Todo!", "", "", 0);
+    const mainPage = repopulateAndReturnPage();
     const curProjectIdCallback = CurrentProjectId();
-    curProjectIdCallback.setCurId(defaultProject.getId()); // TODO this might be annoying on occupied storage branch
-    mainPage.addProject(defaultProject);
-    defaultProject.addCard(defaultCard);
+    if (numProjects(mainPage) == 0) { // default intialization of webpage when starting out
+        const defaultProject = Project("default"); 
+        const defaultCard = Card("I'm a Todo!", "", "", 0);
+        curProjectIdCallback.setCurId(defaultProject.getId());
+        mainPage.addProject(defaultProject);
+        defaultProject.addCard(defaultCard);
+    }
+
     displayListOfProjects(mainPage, curProjectIdCallback);
     updateProjectDropdown(mainPage);
 
@@ -283,7 +286,7 @@ function displayListOfProjects(page, curProjectIdCallback) {
         })
         const deleteButton = Object.assign(document.createElement("button"), {className: "delete-project", textContent: "X"});
         deleteButton.addEventListener("click", e => {
-            if (numProjects(page) > 1) {
+            if (numProjects(page) > 0) { // TODO FIXME was 1
                 let thisProjectDividerDiv = deleteButton.parentElement;
                 let uuid = thisProjectDividerDiv.dataset.uuid;
                 if (uuid === curProjectIdCallback.getCurId()) {
