@@ -13,8 +13,6 @@ function Card(inTitle, inDesc, inDueDate, inPriority) {
 
     const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
     const getId = () => id;
-    const getParentId = () => parentId;
-    const setParentId = (newParentId) => { parentId = newParentId }; 
     
     function editCard(newTitle=_title, newDesc=_desc, 
         newDueDate=_dueDate, newPriority=_priority) {
@@ -26,7 +24,7 @@ function Card(inTitle, inDesc, inDueDate, inPriority) {
 
     const toggleComplete = () => {complete = !complete};
 
-    return { getCard, getId, editCard, toggleComplete, getParentId, setParentId };
+    return { getCard, getId, editCard, toggleComplete };
 }
 
 
@@ -105,14 +103,6 @@ function Page() {
     return { addProject, removeProject, getProject, retrieveAllProjects };
 }
 
-function addCardToProject(card, project) {
-    // card and project are objects
-    project.addCard(card);
-    const projectId = project.getId();
-    card.setParentId(projectId);
-}
-
-
 function runner() {
     // Runs remaining logic
     const mainPage = Page();
@@ -132,8 +122,8 @@ function runner() {
         let fmObj = Object.fromEntries(formData); // {'title', 'desc', 'due', "priority", 
                                                     // (opt) "notes", (opt) "checklist",  "project" (object) <-- TODO}
         let newCard = Card(fmObj.title, fmObj.desc, fmObj.due, +fmObj.priority);
-        const parentProject = mainPage.getProject(fmObj.project);
-        addCardToProject(newCard, parentProject); // TODO refactor
+        const parentProject = mainPage.getProject(fmObj.project); // <-- project id
+        parentProject.addCard(newCard);
         displayProject(parentProject);
         e.target.reset();
     });
