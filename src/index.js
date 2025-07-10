@@ -72,12 +72,10 @@ function Project(name) {
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
     const getId = () => id;
-    const addCard = base.addItem;
-    const removeCard = base.removeItem;
-    const getCard = base.getItem;
-    const retrieveAllCards = base.retrieveAllItems;
 
-    return { getName, editName, getId, addCard, removeCard, getCard, retrieveAllCards };
+    return { getName, editName, getId, addCard: base.addItem, 
+        removeCard: base.removeItem, getCard: base.getItem, 
+        retrieveAllCards: base.retrieveAllItems };
 }
 
 function IdentifiableProject(inName, inId) {
@@ -91,12 +89,9 @@ function IdentifiableProject(inName, inId) {
 function Page() {
     // Named Collection of Projects
     const base = Collection();
-    const addProject = base.addItem;
-    const removeProject = base.removeItem;
-    const getProject = base.getItem;
-    const retrieveAllProjects = base.retrieveAllItems;
 
-    return { addProject, removeProject, getProject, retrieveAllProjects };
+    return { addProject: base.addItem, removeProject: base.removeItem, 
+        getProject: base.getItem, retrieveAllProjects: base.retrieveAllItems };
 }
 
 
