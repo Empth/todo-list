@@ -1,4 +1,3 @@
-import { jsx } from "react/jsx-runtime";
 import "./style.css";
 import "./template.html";
 
