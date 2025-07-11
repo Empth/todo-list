@@ -175,6 +175,8 @@ function runner() {
         curProjectIdCallback.setCurId(defaultProject.getId());
         mainPage.addProject(defaultProject);
         defaultProject.addCard(defaultCard);
+    } else {
+        curProjectIdCallback.setCurId(getNextProjectBesidesCurrent(mainPage, null).getId());  // hack
     }
 
     displayListOfProjects(mainPage, curProjectIdCallback);
@@ -286,7 +288,7 @@ function displayListOfProjects(page, curProjectIdCallback) {
         })
         const deleteButton = Object.assign(document.createElement("button"), {className: "delete-project", textContent: "X"});
         deleteButton.addEventListener("click", e => {
-            if (numProjects(page) > 0) { // TODO FIXME was 1
+            if (numProjects(page) > 1) {
                 let thisProjectDividerDiv = deleteButton.parentElement;
                 let uuid = thisProjectDividerDiv.dataset.uuid;
                 if (uuid === curProjectIdCallback.getCurId()) {
