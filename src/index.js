@@ -77,7 +77,7 @@ function Project(name, initId=null) {
     };
 
     return { getName, editName, getId, addCard, removeCard, getCard: base.getItem, 
-                retrieveAllCards: base.retrieveAllItems };
+                retrieveAllCards: base.retrieveAllItems, addItem: base.addItem };
 }
 
 function Page() {
@@ -94,7 +94,7 @@ function Page() {
     };
 
     return { addProject, removeProject, getProject: base.getItem, 
-                retrieveAllProjects: base.retrieveAllItems };
+                retrieveAllProjects: base.retrieveAllItems, addItem: base.addItem };
 }
 
 
@@ -134,9 +134,9 @@ function repopulateAndReturnPage() {
             const rawCard = projectJson[cardId];
             const card = Card(rawCard.title, rawCard.desc, 
                                 rawCard.due, rawCard.priority, cardId);
-            project.addCard(card);
+            project.addItem(card);
         });
-        page.addProject(project)
+        page.addItem(project)
     }
     return page;
 }
