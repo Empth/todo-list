@@ -2,7 +2,7 @@ import "./style.css";
 import "./template.html";
 
 function Card(inTitle, inDesc, inDueDate, inPriority, init={}) {
-    // init: initializer object with initId, initDate fields.
+    // init: initializer object with initId, initCreatedDate, initModifiedDate fields.
 
     let _title = inTitle; // str
     let _desc = inDesc; // str
@@ -11,8 +11,8 @@ function Card(inTitle, inDesc, inDueDate, inPriority, init={}) {
 
     let complete = false;
     const id = ("initId" in init) ? init.initId : crypto.randomUUID();
-    const _createdDate = ("initDate" in init) ? init.initDate : new Date();
-    let _modifiedDate = _createdDate;
+    const _createdDate = ("initCreatedDate" in init) ? init.initCreatedDate : new Date();
+    let _modifiedDate = ("initModifiedDate" in init) ? init.initModifiedDate : _createdDate;
 
     const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority } };
     const getId = () => id;
@@ -63,13 +63,14 @@ function Collection() {
 
 function Project(name, init={}) {
     // Named Collection of Cards
-    // init: initializer object with initId, initDate fields.
+    // init: initializer object with initId, initCreatedDate,
+    // initModifiedDate fields.
     let _name = name;
     const id = ("initId" in init) ? init.initId : crypto.randomUUID();
     const storageRunner = Storage();
     const base = Collection();
-    const _createdDate = ("initDate" in init) ? init.initDate : new Date();
-    let _modifiedDate = _createdDate;
+    const _createdDate = ("initCreatedDate" in init) ? init.initCreatedDate : new Date();
+    let _modifiedDate = ("initModifiedDate" in init) ? init.initModifiedDate : _createdDate;
 
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
@@ -144,7 +145,7 @@ function repopulateAndReturnPage() {
             const rawCard = projectJson[cardId];
             const card = Card(rawCard.title, rawCard.desc, 
                                 rawCard.due, rawCard.priority, 
-                                {"initId": cardId });
+                                {"initId": cardId});
             project.addItem(card);
         });
         page.addItem(project)
