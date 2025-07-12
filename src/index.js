@@ -1,8 +1,8 @@
 import "./style.css";
 import "./template.html";
 
-function Card(inTitle, inDesc, inDueDate, inPriority, initId=null) {
-    // initId: given inital id to set card's identifier as.
+function Card(inTitle, inDesc, inDueDate, inPriority, init={}) {
+    // init: initializer object with initId, initDate fields.
 
     let _title = inTitle; // str
     let _desc = inDesc; // str
@@ -10,7 +10,7 @@ function Card(inTitle, inDesc, inDueDate, inPriority, initId=null) {
     let _priority = inPriority; // integer from 1-5 (1 is least important, 5 most
 
     let complete = false;
-    const id = (initId === null) ? crypto.randomUUID() : initId;
+    const id = ("initId" in init) ? init.initId : crypto.randomUUID();
 
     const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
     const getId = () => id;
@@ -57,11 +57,11 @@ function Collection() {
     return { addItem, removeItem, getItem, retrieveAllItems };
 }
 
-function Project(name, initId=null) {
+function Project(name, init={}) {
     // Named Collection of Cards
-    // initId: given inital id to set project's identifier as.
+    // init: initializer object with initId, initDate fields.
     let _name = name;
-    const id = (initId === null) ? crypto.randomUUID() : initId;
+    const id = ("initId" in init) ? init.initId : crypto.randomUUID();
     const storageRunner = Storage();
     const base = Collection();
     const getName = () => _name;
@@ -128,12 +128,13 @@ function repopulateAndReturnPage() {
     for (let i = 0; i < storage.length; i++) {
         const projectId = storage.key(i);
         const projectJson = JSON.parse(storage.getItem(projectId));
-        const project = Project(projectJson.name, projectId);
+        const project = Project(projectJson.name, {"initId": projectId });
         delete projectJson.name;
         Object.keys(projectJson).forEach(cardId => {
             const rawCard = projectJson[cardId];
             const card = Card(rawCard.title, rawCard.desc, 
-                                rawCard.due, rawCard.priority, cardId);
+                                rawCard.due, rawCard.priority, 
+                                {"initId": cardId });
             project.addItem(card);
         });
         page.addItem(project)
