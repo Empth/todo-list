@@ -11,8 +11,10 @@ function Card(inTitle, inDesc, inDueDate, inPriority, init={}) {
 
     let complete = false;
     const id = ("initId" in init) ? init.initId : crypto.randomUUID();
+    const _createdDate = ("initDate" in init) ? init.initDate : new Date();
+    let _modifiedDate = _createdDate;
 
-    const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority}; };
+    const getCard = () => { return {title: _title, desc: _desc, due: _dueDate, priority: _priority } };
     const getId = () => id;
     
     function editCard(newTitle=_title, newDesc=_desc, 
@@ -22,10 +24,12 @@ function Card(inTitle, inDesc, inDueDate, inPriority, init={}) {
         _dueDate=newDueDate;
         _priority=newPriority;
     }
+    const getCreatedDate = () => _createdDate;
+    const getModifiedDate = () => _modifiedDate;
 
     const toggleComplete = () => { complete = !complete };
 
-    return { getCard, getId, editCard, toggleComplete };
+    return { getCard, getId, editCard, toggleComplete, getCreatedDate, getModifiedDate };
 }
 
 function Collection() {
@@ -64,6 +68,9 @@ function Project(name, init={}) {
     const id = ("initId" in init) ? init.initId : crypto.randomUUID();
     const storageRunner = Storage();
     const base = Collection();
+    const _createdDate = ("initDate" in init) ? init.initDate : new Date();
+    let _modifiedDate = _createdDate;
+
     const getName = () => _name;
     const editName = (newName) => { _name=newName };
     const getId = () => id;
@@ -75,9 +82,12 @@ function Project(name, init={}) {
         storageRunner.removeCardfromProject(cardId, id);
         base.removeItem(id);
     };
+    const getCreatedDate = () => _createdDate;
+    const getModifiedDate = () => _modifiedDate;
 
     return { getName, editName, getId, addCard, removeCard, getCard: base.getItem, 
-                retrieveAllCards: base.retrieveAllItems, addItem: base.addItem };
+                retrieveAllCards: base.retrieveAllItems, addItem: base.addItem,
+                getCreatedDate, getModifiedDate };
 }
 
 function Page() {
